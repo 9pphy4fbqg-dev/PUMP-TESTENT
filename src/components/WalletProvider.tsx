@@ -3,7 +3,7 @@
 import { FC, ReactNode, useMemo } from 'react'
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { BaseWalletAdapter, WalletReadyState, WalletName } from '@solana/wallet-adapter-base'
+import { BaseWalletAdapter, WalletReadyState, WalletName, WalletError } from '@solana/wallet-adapter-base'
 import { PublicKey, Transaction, VersionedTransaction, TransactionVersion } from '@solana/web3.js'
 
 import '@solana/wallet-adapter-react-ui/styles.css'
@@ -12,12 +12,18 @@ interface Props {
   children: ReactNode
 }
 
+const LEGACY_TRANSACTION_VERSION = 'legacy' as const
+const VERSIONED_TRANSACTION_VERSION = 0 as const
+
 class TokenPocketWalletAdapter extends BaseWalletAdapter<string> {
   name: WalletName<string> = 'TokenPocket' as WalletName<string>
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
   readyState: WalletReadyState = WalletReadyState.Installed
-  supportedTransactionVersions: ReadonlySet<TransactionVersion> = new Set<TransactionVersion>(['legacy' as TransactionVersion, 0 as TransactionVersion])
+  supportedTransactionVersions: ReadonlySet<TransactionVersion> = new Set<TransactionVersion>([
+    LEGACY_TRANSACTION_VERSION as TransactionVersion,
+    VERSIONED_TRANSACTION_VERSION as TransactionVersion
+  ])
   private _publicKey: PublicKey | null = null
   private _connecting: boolean = false
 
@@ -29,14 +35,23 @@ class TokenPocketWalletAdapter extends BaseWalletAdapter<string> {
     return this._connecting
   }
 
+  get connected(): boolean {
+    return this._publicKey !== null
+  }
+
+  async autoConnect(): Promise<void> {
+    return this.connect()
+  }
+
   async connect(): Promise<void> {
     try {
       this._connecting = true
-      this.emit('connecting')
       
       const tp = (window as any).solana
       if (!tp) {
-        throw new Error('TokenPocket wallet not found')
+        const error = new Error('TokenPocket wallet not found') as WalletError
+        this.emit('error', error)
+        throw error
       }
       
       const response = await tp.connect()
@@ -46,9 +61,11 @@ class TokenPocketWalletAdapter extends BaseWalletAdapter<string> {
         this._publicKey = new PublicKey(tp.publicKey.toBase58())
       }
       
-      this.emit('connect')
+      if (this._publicKey) {
+        this.emit('connect', this._publicKey)
+      }
     } catch (error) {
-      this.emit('error', error as Error)
+      this.emit('error', error as WalletError)
       throw error
     } finally {
       this._connecting = false
