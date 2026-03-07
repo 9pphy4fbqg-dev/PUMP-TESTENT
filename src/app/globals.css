@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 13, 13, 13;
+  --background-end-rgb: 13, 13, 13;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1A1A1A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3D3D3D;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4D4D4D;
+}
+
+/* Pump style buttons */
+.btn-primary {
+  @apply bg-pump-green text-black font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition-all;
+}
+
+.btn-secondary {
+  @apply bg-pump-card text-white font-bold py-2 px-4 rounded-lg border border-pump-border hover:border-pump-green transition-all;
+}
+
+.btn-danger {
+  @apply bg-pump-red text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition-all;
+}
+
+/* Card styles */
+.card {
+  @apply bg-pump-card border border-pump-border rounded-xl p-4;
+}
+
+/* Input styles */
+.input-field {
+  @apply bg-pump-bg border border-pump-border rounded-lg px-4 py-2 text-white focus:border-pump-green focus:outline-none w-full;
+}
