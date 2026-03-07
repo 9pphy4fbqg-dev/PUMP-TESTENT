@@ -3,7 +3,7 @@
 import { FC, ReactNode, useMemo } from 'react'
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { BaseWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
+import { BaseWalletAdapter, WalletReadyState, WalletName } from '@solana/wallet-adapter-base'
 import { PublicKey, Transaction, VersionedTransaction, TransactionVersion } from '@solana/web3.js'
 
 import '@solana/wallet-adapter-react-ui/styles.css'
@@ -12,8 +12,14 @@ interface Props {
   children: ReactNode
 }
 
-class TokenPocketWalletAdapter extends BaseWalletAdapter {
-  name = 'TokenPocket'
+interface TokenPocketWalletAdapterConfig {
+  name: WalletName
+  url: string
+  icon: string
+}
+
+class TokenPocketWalletAdapter extends BaseWalletAdapter<TokenPocketWalletAdapterConfig> {
+  name: WalletName = 'TokenPocket' as WalletName
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
   readyState: WalletReadyState = WalletReadyState.Installed
