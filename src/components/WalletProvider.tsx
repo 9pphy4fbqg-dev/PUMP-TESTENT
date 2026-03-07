@@ -3,8 +3,8 @@
 import { FC, ReactNode, useMemo } from 'react'
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { BaseWalletAdapter, WalletAdapterProps, WalletReadyState } from '@solana/wallet-adapter-base'
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { BaseWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
+import { PublicKey, Transaction, VersionedTransaction, TransactionVersion } from '@solana/web3.js'
 
 import '@solana/wallet-adapter-react-ui/styles.css'
 
@@ -17,6 +17,7 @@ class TokenPocketWalletAdapter extends BaseWalletAdapter {
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
   readyState: WalletReadyState = WalletReadyState.Installed
+  supportedTransactionVersions: Set<TransactionVersion> = new Set(['legacy', 0])
   private _publicKey: PublicKey | null = null
   private _connecting: boolean = false
 
@@ -61,6 +62,25 @@ class TokenPocketWalletAdapter extends BaseWalletAdapter {
     }
     this._publicKey = null
     this.emit('disconnect')
+  }
+
+  async sendTransaction<T extends Transaction | VersionedTransaction>(
+    transaction: T,
+    connection: any,
+    options?: any
+  ): Promise<string> {
+    const tp = (window as any).solana
+    if (!tp) {
+      throw new Error('TokenPocket wallet not found')
+    }
+    
+    if (tp.sendTransaction) {
+      return await tp.sendTransaction(transaction, connection, options)
+    }
+    
+    const signed = await this.signTransaction(transaction)
+    const signature = await connection.sendRawTransaction(signed.serialize(), options)
+    return signature
   }
 
   async signTransaction<T extends Transaction | VersionedTransaction>(transaction: T): Promise<T> {
