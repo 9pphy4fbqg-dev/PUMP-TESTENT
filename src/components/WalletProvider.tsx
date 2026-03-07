@@ -17,7 +17,7 @@ class TokenPocketWalletAdapter extends BaseWalletAdapter<string> {
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
   readyState: WalletReadyState = WalletReadyState.Installed
-  supportedTransactionVersions: Set<TransactionVersion> = new Set(['legacy', 0])
+  supportedTransactionVersions: ReadonlySet<TransactionVersion> = new Set<TransactionVersion>(['legacy' as TransactionVersion, 0 as TransactionVersion])
   private _publicKey: PublicKey | null = null
   private _connecting: boolean = false
 
