@@ -12,13 +12,7 @@ interface Props {
   children: ReactNode
 }
 
-interface TokenPocketWalletAdapterConfig {
-  name: WalletName
-  url: string
-  icon: string
-}
-
-class TokenPocketWalletAdapter extends BaseWalletAdapter<TokenPocketWalletAdapterConfig> {
+class TokenPocketWalletAdapter extends BaseWalletAdapter {
   name: WalletName = 'TokenPocket' as WalletName
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
