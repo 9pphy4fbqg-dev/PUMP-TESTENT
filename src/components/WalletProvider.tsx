@@ -12,8 +12,8 @@ interface Props {
   children: ReactNode
 }
 
-class TokenPocketWalletAdapter extends BaseWalletAdapter {
-  name: WalletName = 'TokenPocket' as WalletName
+class TokenPocketWalletAdapter extends BaseWalletAdapter<string> {
+  name: WalletName<string> = 'TokenPocket' as WalletName<string>
   url = 'https://www.tokenpocket.pro/'
   icon = 'https://www.tokenpocket.pro/_nuxt/img/logo.13f5074.png'
   readyState: WalletReadyState = WalletReadyState.Installed
