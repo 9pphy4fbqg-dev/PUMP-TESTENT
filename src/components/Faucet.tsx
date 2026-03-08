@@ -18,26 +18,29 @@ export default function Faucet() {
     
     try {
       const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899', {
-        commitment: 'confirmed',
-        confirmTransactionInitialTimeout: 120000
+        commitment: 'processed'
       })
+      
       const signature = await connection.requestAirdrop(
         publicKey,
         amount * LAMPORTS_PER_SOL
       )
+      
+      setMessage(`交易已提交，正在确认...`)
       
       const latestBlockhash = await connection.getLatestBlockhash()
       await connection.confirmTransaction({
         signature,
         blockhash: latestBlockhash.blockhash,
         lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
-      }, 'confirmed')
+      }, 'processed')
       
       setMessage(`成功获取 ${amount} SOL！`)
       window.dispatchEvent(new Event('refreshBalance'))
     } catch (error: any) {
-      if (error.message.includes('not confirmed')) {
+      if (error.message.includes('not confirmed') || error.message.includes('timeout')) {
         setMessage(`交易已提交，请稍后刷新查看余额`)
+        window.dispatchEvent(new Event('refreshBalance'))
       } else {
         setMessage(`错误: ${error.message}`)
       }
