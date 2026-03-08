@@ -2,7 +2,6 @@
 
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState, useCallback } from 'react'
-import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import dynamic from 'next/dynamic'
 
 const WalletMultiButtonDynamic = dynamic(
@@ -17,9 +16,21 @@ export default function Header() {
   const fetchBalance = useCallback(async () => {
     if (publicKey) {
       try {
-        const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899')
-        const bal = await connection.getBalance(publicKey)
-        setBalance(bal / LAMPORTS_PER_SOL)
+        const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899'
+        const response = await fetch(rpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getBalance',
+            params: [publicKey.toBase58()]
+          })
+        })
+        const data = await response.json()
+        if (data.result) {
+          setBalance(data.result.value / 1000000000)
+        }
       } catch (error) {
         console.error('Failed to fetch balance:', error)
       }
