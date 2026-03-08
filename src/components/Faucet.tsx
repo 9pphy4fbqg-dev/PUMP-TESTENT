@@ -19,16 +19,22 @@ export default function Faucet() {
     try {
       const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899')
       
+      // 1. 提交空投请求
       const signature = await connection.requestAirdrop(
         publicKey,
         amount * LAMPORTS_PER_SOL
       )
       
-      setMessage(`成功获取 ${amount} SOL！`)
+      // 2. 立即刷新余额（交易已提交）
       window.dispatchEvent(new Event('refreshBalance'))
+      
+      // 3. 显示成功消息
+      setMessage(`成功获取 ${amount} SOL！`)
+      
     } catch (error: any) {
       setMessage(`错误: ${error.message}`)
     } finally {
+      // 4. 无论成功失败，都结束loading状态
       setLoading(false)
     }
   }
