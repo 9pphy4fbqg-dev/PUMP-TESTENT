@@ -37,8 +37,10 @@ export default function Faucet() {
         throw new Error(data.error.message)
       }
       
-      // 立即刷新余额
-      window.dispatchEvent(new Event('refreshBalance'))
+      // 延迟刷新余额（等待链上确认）
+      setTimeout(() => window.dispatchEvent(new Event('refreshBalance')), 1000)
+      setTimeout(() => window.dispatchEvent(new Event('refreshBalance')), 3000)
+      setTimeout(() => window.dispatchEvent(new Event('refreshBalance')), 5000)
       
       // 显示成功消息
       setMessage(`成功获取 ${amount} SOL！`)
