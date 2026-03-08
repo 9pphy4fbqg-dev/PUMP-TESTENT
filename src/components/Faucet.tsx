@@ -25,6 +25,7 @@ export default function Faucet() {
       
       await connection.confirmTransaction(signature, 'confirmed')
       setMessage(`成功获取 ${amount} SOL！`)
+      window.dispatchEvent(new Event('refreshBalance'))
     } catch (error: any) {
       setMessage(`错误: ${error.message}`)
     } finally {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import dynamic from 'next/dynamic'
 
@@ -14,14 +14,29 @@ export default function Header() {
   const { publicKey, connected } = useWallet()
   const [balance, setBalance] = useState<number>(0)
 
-  useEffect(() => {
+  const fetchBalance = useCallback(async () => {
     if (publicKey) {
-      const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899')
-      connection.getBalance(publicKey).then((bal) => {
+      try {
+        const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || 'http://127.0.0.1:8899')
+        const bal = await connection.getBalance(publicKey)
         setBalance(bal / LAMPORTS_PER_SOL)
-      })
+      } catch (error) {
+        console.error('Failed to fetch balance:', error)
+      }
     }
   }, [publicKey])
+
+  useEffect(() => {
+    fetchBalance()
+    const interval = setInterval(fetchBalance, 5000)
+    return () => clearInterval(interval)
+  }, [fetchBalance])
+
+  useEffect(() => {
+    const handleRefresh = () => fetchBalance()
+    window.addEventListener('refreshBalance', handleRefresh)
+    return () => window.removeEventListener('refreshBalance', handleRefresh)
+  }, [fetchBalance])
 
   return (
     <header className="bg-pump-card border-b border-pump-border sticky top-0 z-50">
